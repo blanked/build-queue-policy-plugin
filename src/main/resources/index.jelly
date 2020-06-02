@@ -1,0 +1,4 @@
+<?jelly escape-by-default='true'?>
+<div>
+    This plugin allows for a configuration to set a timeout for all builds on a global level on the configure page.
+</div>
