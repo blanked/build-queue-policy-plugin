@@ -29,13 +29,13 @@ public class JobTimeoutProperty extends OptionalJobProperty<Job<?,?>> implements
     }
 
     @Override
-    public Integer getTimeout() {
+    public Integer getBuildTimeout() {
         return this.timeout;
     }
 
     @Override
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
+    public void setBuildTimeout(int buildTimeout) {
+        this.timeout = buildTimeout;
     }
 
     @Extension

@@ -29,6 +29,7 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
     public BuildTimeoutListener() {
 
     }
+    // TODO - implement queue timer too
 
     @Override
     public void onStarted(Run<?, ?> run, TaskListener listener) {
@@ -53,12 +54,12 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
         // check for job specific timeout
         JobProperty buildTimeoutProperty = run.getParent().getProperty(JobTimeoutProperty.class);
         if (buildTimeoutProperty instanceof JobTimeoutProperty) {
-            Integer buildTimeout = ((JobTimeoutProperty) buildTimeoutProperty).getTimeout();
+            Integer buildTimeout = ((JobTimeoutProperty) buildTimeoutProperty).getBuildTimeout();
             if (buildTimeout != null && buildTimeout > 0) {
                 return buildTimeout;
             }
         }
-        Integer globalTimeout = GlobalTimeoutConfig.get().getTimeout();
+        Integer globalTimeout = GlobalTimeoutConfig.get().getBuildTimeout();
         if (globalTimeout != null && globalTimeout > 0) {
             return globalTimeout;
         } else {
