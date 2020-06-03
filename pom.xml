@@ -13,6 +13,7 @@
     <artifactId>global-build-timeout</artifactId>
     <version>0.1-SNAPSHOT</version>
     <name>Global Timeout Plugin</name>
+    <packaging>hpi</packaging>
     <properties>
         <jenkins.version>2.138.4</jenkins.version>
         <java.level>8</java.level>

@@ -2,6 +2,9 @@ package com.autodesk.config;
 
 import hudson.Extension;
 import jenkins.model.GlobalConfiguration;
+import net.sf.json.JSONObject;
+import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.StaplerRequest;
 
 import javax.annotation.CheckForNull;
 
@@ -29,17 +32,28 @@ public class GlobalTimeoutConfig extends GlobalConfiguration implements TimeoutC
         return buildTimeout;
     }
 
-    @Override
-    public void setBuildTimeout(int buildTimeout) {
+    @DataBoundSetter
+    public void setBuildTimeout(Integer buildTimeout) {
+
         this.buildTimeout = buildTimeout;
+        save();
     }
 
 
+    @CheckForNull
     public Integer getQueueTimeout() {
         return queueTimeout;
     }
 
+    @DataBoundSetter
     public void setQueueTimeout(Integer queueTimeout) {
         this.queueTimeout = queueTimeout;
+        save();
+    }
+
+    @Override
+    public boolean configure(StaplerRequest req, JSONObject json) throws FormException {
+        req.bindJSON(this, json);
+        return true;
     }
 }

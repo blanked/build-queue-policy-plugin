@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
     <f:section title="${%Global Timeout Plugin}">
-        <f:entry field="timeout" title="${%Timeout (minutes)}">
+        <f:entry field="buildTimeout" title="${%Build Timeout (minutes)}">
             <f:textbox/>
         </f:entry>
         <f:entry field="queueTimeout" title="${%Queue Timeout (minutes)}">
