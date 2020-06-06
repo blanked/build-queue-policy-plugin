@@ -23,11 +23,11 @@ import java.util.logging.Logger;
 /**
  * Integration tests
  */
-public class TimeoutIntegrationTest {
+public class BuildTimeoutIntegrationTests {
 
     @Rule
     public final JenkinsRule jenkinsRule = new JenkinsRule();
-    Logger LOGGER = Logger.getLogger(TimeoutIntegrationTest.class.getName());
+    Logger LOGGER = Logger.getLogger(BuildTimeoutIntegrationTests.class.getName());
     FreeStyleProject freeStyleProject;
     WorkflowJob pipelineProject;
 
@@ -76,8 +76,63 @@ public class TimeoutIntegrationTest {
         jenkinsRule.assertBuildStatus(Result.ABORTED, workflowRun);
     }
 
+    // Testing override of global timeout with build timeout. Exceed global but within build timeout
+    @Test
+    public void testJobTimeoutFreestylePass() throws Exception {
+
+        GlobalTimeoutConfig.get().setBuildTimeout(1);
+        // Testing freestyle
+        freeStyleProject.addProperty(new JobTimeoutProperty(2));
+        setFreestyleDuration(61);
+        FreeStyleBuild freeStyleBuild = freeStyleProject.scheduleBuild2(0).get();
+        jenkinsRule.assertBuildStatus(Result.SUCCESS, freeStyleBuild);
+        freeStyleProject.removeProperty(JobTimeoutProperty.class);
+    }
+
+    @Test
+    public void testJobTimeoutPipelinePass() throws Exception {
+
+        // Testing pipeline
+        setPipelineWithJobTimeout(61, 2);
+        WorkflowRun workflowRun = Objects.requireNonNull(pipelineProject.scheduleBuild2(0)).get();
+        String log = workflowRun.getLog();
+        jenkinsRule.assertBuildStatus(Result.SUCCESS, workflowRun);
+    }
+
+    @Test
+    public void testFreestyleJobTimeout() throws Exception {
+
+        GlobalTimeoutConfig.get().setBuildTimeout(0);
+        // Testing freestyle
+        LOGGER.info("Testing freestyle");
+        freeStyleProject.addProperty(new JobTimeoutProperty(1));
+        setFreestyleDuration(61);
+        FreeStyleBuild freeStyleBuild = freeStyleProject.scheduleBuild2(0).get();
+        jenkinsRule.assertBuildStatus(Result.ABORTED, freeStyleBuild);
+        freeStyleProject.removeProperty(JobTimeoutProperty.class);
+        LOGGER.info("Freestyle completed successfully. Testing pipeline");
+    }
+
+    @Test
+    public void testPipelineJobTimeout() throws Exception {
+
+        GlobalTimeoutConfig.get().setBuildTimeout(0);
+        LOGGER.info("Testing pipeline job timeout");
+        setPipelineWithJobTimeout(61, 1);
+        WorkflowRun workflowRun = Objects.requireNonNull(pipelineProject.scheduleBuild2(0)).get();
+        jenkinsRule.assertBuildStatus(Result.ABORTED, workflowRun);
+    }
+
     private void setPipelineDuration(int durationSeconds) {
         String jenkinsfileString = "node() { sh 'sleep " + durationSeconds + "; echo done'}";
+        pipelineProject.setDefinition(new CpsFlowDefinition(jenkinsfileString, false));
+    }
+
+    private void setPipelineWithJobTimeout(int durationSeconds, int jobTimeoutMinutes) {
+        String jenkinsfileString = "node() {\n"
+                + "    jobTimeoutProperty(2)\n"
+                + "    sh 'sleep " + durationSeconds + "; echo done'\n"
+                + "}";
         pipelineProject.setDefinition(new CpsFlowDefinition(jenkinsfileString, false));
     }
 

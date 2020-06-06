@@ -15,7 +15,7 @@ public class TimeoutConfigUnitTests {
     public final JenkinsRule jenkinsRule = new JenkinsRule();
 
     @Test
-    public void unitTestGlobalTime() {
+    public void unitTestBuildTimeout() {
         Integer testTimeout = 10;
         GlobalTimeoutConfig globalTimeoutConfig = GlobalTimeoutConfig.get();
         globalTimeoutConfig.setBuildTimeout(testTimeout);
@@ -27,5 +27,21 @@ public class TimeoutConfigUnitTests {
         Integer testTimeout = 10;
         JobTimeoutProperty property = new JobTimeoutProperty(testTimeout);
         assertEquals(testTimeout, property.getBuildTimeout());
+    }
+
+    @Test
+    public void unitTestQueueTimeout() {
+        Integer testTimeout = 10;
+        GlobalTimeoutConfig config = GlobalTimeoutConfig.get();
+        config.setQueueTimeout(testTimeout);
+        assertEquals(testTimeout, config.getQueueTimeout());
+    }
+
+    @Test
+    public void unitTestNoSuchNodeQueueTimeout() {
+        Integer testTimeout = 10;
+        GlobalTimeoutConfig config = GlobalTimeoutConfig.get();
+        config.setNoSuchNodeQueueTimeout(testTimeout);
+        assertEquals(testTimeout, config.getNoSuchNodeQueueTimeout());
     }
 }

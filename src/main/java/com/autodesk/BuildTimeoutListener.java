@@ -11,6 +11,7 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.model.listeners.RunListener;
 import jenkins.model.CauseOfInterruption;
+import org.jenkinsci.Symbol;
 import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import jenkins.util.Timer;
 
@@ -22,6 +23,7 @@ import java.util.logging.Logger;
 
 
 @Extension
+@Symbol("buildTimeoutListener")
 public class BuildTimeoutListener extends RunListener<Run<?,?>> {
 
     private static final Logger LOGGER = Logger.getLogger(BuildTimeoutListener.class.getName());
@@ -29,7 +31,6 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
     public BuildTimeoutListener() {
 
     }
-    // TODO - implement queue timer too
 
     @Override
     public void onStarted(Run<?, ?> run, TaskListener listener) {
@@ -41,7 +42,7 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
                     Thread.currentThread().setName("Global Timeout plugin: " + run.getUrl());
                     abortBuild(run);
                 } catch (Exception e) {
-                    LOGGER.log(Level.SEVERE, "Abort Build failed for run " + run.getUrl());
+                    LOGGER.log(Level.SEVERE, "Abort Build failed for run " + run.getUrl(), e);
                 } finally {
                     Thread.currentThread().setName("Global Timeout plugin: Idle thread in pool");
                 }
@@ -72,6 +73,10 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
             // TODO - insert log to say that the build has been killed
             LOGGER.info("Timeout exceeded, interrupting run " + run.getUrl());
             Executor executor = run.getExecutor();
+            if(executor == null) {
+                LOGGER.warning("Executor is null for run " + run.getUrl());
+                return;
+            }
             executor.interrupt(Result.ABORTED, new JobTimeoutInterruption());
             Thread.sleep(30);  // allow 30s for the job
             if (run.isBuilding()) {
@@ -84,7 +89,7 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
         }
     }
 
-    private class JobTimeoutInterruption extends CauseOfInterruption {
+    private static class JobTimeoutInterruption extends CauseOfInterruption {
 
         @Override
         public String getShortDescription() {

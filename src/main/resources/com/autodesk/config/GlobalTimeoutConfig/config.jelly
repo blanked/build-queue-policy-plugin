@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-    <f:section title="${%Global Timeout Plugin}">
-        <f:entry field="buildTimeout" title="${%Build Timeout (minutes)}">
+    <f:section title="${%sectionTitle}">
+        <f:entry field="buildTimeout" title="${%buildTimeoutTitle}">
             <f:textbox/>
         </f:entry>
-        <f:entry field="queueTimeout" title="${%Queue Timeout (minutes)}">
+        <f:entry field="queueTimeout" title="${%queueTimeoutTitle}">
+            <f:textbox/>
+        </f:entry>
+        <f:entry field="noSuchNodeQueueTimeout" title="${%noSuchNodeQueueTimeoutTitle}">
             <f:textbox/>
         </f:entry>
     </f:section>
