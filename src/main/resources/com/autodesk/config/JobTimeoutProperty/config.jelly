@@ -1,9 +1,0 @@
-<?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
-    <f:optionalBlock title="${descriptor.displayName}" name="specified" checked="${instance != null}" inline="true">
-        <f:entry title="${%entryTitle}"
-                 field="enableTriggers">
-            <f:checkbox />
-        </f:entry>
-    </f:optionalBlock>
-</j:jelly>

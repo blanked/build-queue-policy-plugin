@@ -9,7 +9,6 @@ import org.jenkinsci.Symbol;
 import org.kohsuke.accmod.Restricted;
 import org.kohsuke.accmod.restrictions.NoExternalUse;
 import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.StaplerRequest;
 
 import javax.annotation.Nonnull;
@@ -19,33 +18,27 @@ import javax.annotation.Nonnull;
  */
 @Restricted(NoExternalUse.class)
 public class JobTimeoutProperty extends OptionalJobProperty<Job<?,?>> implements TimeoutConfig {
-    Integer timeout;
+    Integer buildTimeout;
 
     @DataBoundConstructor
-    public JobTimeoutProperty(Integer timeout) {
-        if (timeout < 0) {
-            this.timeout = 0;
+    public JobTimeoutProperty(Integer buildTimeout) {
+        if (buildTimeout < 0) {
+            this.buildTimeout = 0;
         } else {
-            this.timeout = timeout;
+            this.buildTimeout = buildTimeout;
         }
     }
 
     @Override
-    public OptionalJobPropertyDescriptor getDescriptor() {
-        return super.getDescriptor();
-    }
-
-    @Override
     public Integer getBuildTimeout() {
-        return this.timeout;
+        return this.buildTimeout;
     }
 
     @Override
     public void setBuildTimeout(Integer buildTimeout) {
-        this.timeout = buildTimeout;
+        this.buildTimeout = buildTimeout;
     }
 
-    // TODO - implement the jelly bits to enable adding of config for freestyle
     @Extension
     @Symbol("jobTimeoutProperty")
     public static class DescriptorImpl extends OptionalJobPropertyDescriptor {
@@ -53,7 +46,7 @@ public class JobTimeoutProperty extends OptionalJobProperty<Job<?,?>> implements
         @Nonnull
         @Override
         public String getDisplayName() {
-            return "Job timeout property that overrides the globally configured timeout";
+            return "Set a Job timeout property (overrides any globally configured timeout)";
         }
 
         @Override
@@ -61,5 +54,4 @@ public class JobTimeoutProperty extends OptionalJobProperty<Job<?,?>> implements
             return super.newInstance(req, formData);
         }
     }
-
 }
