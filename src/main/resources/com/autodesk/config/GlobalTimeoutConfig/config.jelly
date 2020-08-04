@@ -5,6 +5,9 @@
         <f:entry field="buildTimeout" title="${%buildTimeoutTitle}">
             <f:textbox/>
         </f:entry>
+        <f:entry field="gracePeriod" title="${%gracePeriodTitle}">
+            <f:textbox/>
+        </f:entry>
         <f:entry field="queueTimeout" title="${%queueTimeoutTitle}">
             <f:textbox/>
         </f:entry>

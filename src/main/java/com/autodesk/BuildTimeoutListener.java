@@ -35,6 +35,7 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
     @Override
     public void onStarted(Run<?, ?> run, TaskListener listener) {
 
+        // TODO - refactor to split the failure cause
         Integer timeout = getTimeout(run);
         if (timeout != null) {
             Timer.get().schedule(() -> {
@@ -68,7 +69,7 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
         }
     }
 
-    private void abortBuild(Run run) throws IOException, ServletException, InterruptedException {
+    void abortBuild(Run run) throws IOException, ServletException, InterruptedException {
         if (run.isBuilding()) {
             // TODO - insert log to say that the build has been killed
             LOGGER.info("Timeout exceeded, interrupting run " + run.getUrl());
@@ -78,8 +79,13 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
                 return;
             }
             executor.interrupt(Result.ABORTED, new JobTimeoutInterruption());
-            Thread.sleep(30);  // allow 30s for the job
+
+            // Wait for grace period duration to allow build to exit gracefully
+            Integer gracePeriod = GlobalTimeoutConfig.get().getGracePeriod();
+            Thread.sleep(TimeUnit.SECONDS.toMillis(gracePeriod));
+
             if (run.isBuilding()) {
+                executor.doStop();
                 if (run instanceof AbstractBuild) {
                     ((AbstractBuild) run).doStop();
                 } else if (run instanceof WorkflowRun) {
@@ -89,7 +95,7 @@ public class BuildTimeoutListener extends RunListener<Run<?,?>> {
         }
     }
 
-    private static class JobTimeoutInterruption extends CauseOfInterruption {
+    public static class JobTimeoutInterruption extends CauseOfInterruption {
 
         @Override
         public String getShortDescription() {

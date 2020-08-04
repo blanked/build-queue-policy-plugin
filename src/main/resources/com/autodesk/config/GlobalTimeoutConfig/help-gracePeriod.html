@@ -1,0 +1,5 @@
+<div>
+    A grace period setting (in seconds) that allows builds to finish gracefully upon an interrupt signal.
+    This allows for builds that has clean up methods to handle the abortion of a build.
+    If a build is not aborted after the grace period has been exceeded after an interrupt signal has been sent, the build will be terminated with a hard kill (kill signal) that bypasses any potential clean up methods.
+</div>

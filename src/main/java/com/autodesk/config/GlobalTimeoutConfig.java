@@ -14,9 +14,13 @@ public class GlobalTimeoutConfig extends GlobalConfiguration implements TimeoutC
     private Integer buildTimeout;  // timeout in minutes. if timeout is 0, no timeout.
     private Integer queueTimeout;  // queue timeout in minutes. if timeout is 0, no timeout.
     private Integer noSuchNodeQueueTimeout;
+    private Integer gracePeriod;
 
     public GlobalTimeoutConfig() {
         load();
+        if (gracePeriod == null) {
+            gracePeriod = 10;  // default grace period is 5 seconds
+        }
     }
 
     public static GlobalTimeoutConfig get() {
@@ -85,5 +89,18 @@ public class GlobalTimeoutConfig extends GlobalConfiguration implements TimeoutC
      */
     public Integer getNoSuchNodeQueueTimeout() {
         return noSuchNodeQueueTimeout;
+    }
+
+    public Integer getGracePeriod() {
+        return gracePeriod;
+    }
+
+    @DataBoundSetter
+    public void setGracePeriod(Integer gracePeriod) {
+        // TODO - ensure not null
+        if (gracePeriod == null) {
+            throw new NullPointerException("Grace period value expected but received null");
+        }
+        this.gracePeriod = gracePeriod;
     }
 }
