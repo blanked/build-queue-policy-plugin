@@ -41,9 +41,9 @@ public class BuildTimeoutListenerTests {
         // Starting freestyle
         FreeStyleProject freeStyleProject = jenkinsRule.createFreeStyleProject();
         if (Functions.isWindows()) {
-            freeStyleProject.getBuildersList().add(new BatchFile("timeout 60; echo done"));
+            freeStyleProject.getBuildersList().add(new BatchFile("timeout 600; echo done"));
         } else {
-            freeStyleProject.getBuildersList().add(new Shell("sleep 60;echo done"));
+            freeStyleProject.getBuildersList().add(new Shell("sleep 600;echo done"));
         }
         QueueTaskFuture<FreeStyleBuild> freeStyleBuildQueueTaskFuture = freeStyleProject.scheduleBuild2(0);
         FreeStyleBuild freeStyleBuild = freeStyleBuildQueueTaskFuture.waitForStart();

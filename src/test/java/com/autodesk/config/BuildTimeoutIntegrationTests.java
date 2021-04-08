@@ -199,7 +199,7 @@ public class BuildTimeoutIntegrationTests {
         } else {
             cmd = "sh 'sleep " + durationSeconds + "; echo done'";
         }
-        String jenkinsfileString = "node() { sh 'sleep " + durationSeconds + "; echo done'}";
+        String jenkinsfileString = "node() { " + cmd + " }";
         pipelineProject.setDefinition(new CpsFlowDefinition(jenkinsfileString, false));
     }
 

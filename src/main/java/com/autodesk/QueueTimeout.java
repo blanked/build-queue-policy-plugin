@@ -55,22 +55,29 @@ public class QueueTimeout extends PeriodicWork {
      */
     public void checkForTimeout() {
         Queue.Item[] queueItems = queue.getItems();
+        LOGGER.info("There are " + queueItems.length + " items in the queue");
         Integer queueTimeout = GlobalTimeoutConfig.get().getQueueTimeout();
+        LOGGER.info("queueTimeout: " + queueTimeout);  // FIXME - remove after debugging
         Integer noSuchNodeQueueTimeout = GlobalTimeoutConfig.get().getNoSuchNodeQueueTimeout();
+
         for (Queue.Item queueItem : queueItems) {
             // check if queue timeout has exceeded
+            LOGGER.info("Checking queueItem: " + queueItem.getId());  // FIXME - remove after debugging
             if (queueTimeout != null) {
                 long timeElapsedMillis = System.currentTimeMillis() - queueItem.getInQueueSince();
-                if (TimeUnit.MILLISECONDS.toMinutes(timeElapsedMillis) > queueTimeout) {
+                LOGGER.info("timeElapsed: " + timeElapsedMillis); // FIXME - remove after debugging
+                if (timeElapsedMillis > TimeUnit.MINUTES.toMillis(queueTimeout)) {
+                    LOGGER.info("Queue time exceeded timeout!");
                     submitStopQueueItemThread(queueItem, new QueueTimeoutInterruption());
                 }
             }
-            // TODO - check if there are queueItems without a valid label
             boolean agentExists = checkIfAgentExists(queueItem);
             if (!agentExists && noSuchNodeQueueTimeout != null && noSuchNodeQueueTimeout > 0) {
                 // Checking elapsed time
                 long timeElapsedMillis = System.currentTimeMillis() - queueItem.getInQueueSince();
-                if (TimeUnit.MILLISECONDS.toMinutes(timeElapsedMillis) > noSuchNodeQueueTimeout) {
+                LOGGER.info("timeElapsedMillis: " + timeElapsedMillis);
+                if (timeElapsedMillis > TimeUnit.MINUTES.toMillis(noSuchNodeQueueTimeout)) {
+                    LOGGER.info("elapsed time is greater than noSuchNodeQueueTimeout");
                     Label assignedLabel = queueItem.getAssignedLabel();
                     String labelExpression = assignedLabel.getExpression();
                     submitStopQueueItemThread(queueItem, new InvalidNodeInterruption(labelExpression));
@@ -85,6 +92,8 @@ public class QueueTimeout extends PeriodicWork {
      */
     void submitStopQueueItemThread(Queue.Item queueItem, CauseOfInterruption cause) {
 
+
+        LOGGER.info("Stopping Queue item: " + queueItem.task.getName() + " for cause: " + cause.getShortDescription());
         threadPoolForRemoting.submit(() -> {
             Thread.currentThread().setName("Cancel queue thread: " + queueItem.getDisplayName());
 //            queue.cancel(queueItem);  // TODO - don't simply do queue.cancel. Instead interrupt the task
@@ -98,7 +107,7 @@ public class QueueTimeout extends PeriodicWork {
      * @param task Queue task to be stopped
      * @param cause Cause of stoppage to be flagged in aborted run ({@link QueueTimeoutInterruption} or {@link InvalidNodeInterruption}
      */
-    private void stopQueueTask(Queue.Task task, CauseOfInterruption cause) {
+    void stopQueueTask(Queue.Task task, CauseOfInterruption cause) {
 
         if (task instanceof ExecutorStepExecution.PlaceholderTask) {  // pipeline task
             // Queue.Task ownerTask = task.getOwnerTask();
